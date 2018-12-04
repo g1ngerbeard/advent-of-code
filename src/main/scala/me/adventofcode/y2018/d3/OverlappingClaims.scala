@@ -4,13 +4,13 @@ import me.adventofcode.y2018.util.Parsers._
 
 import scala.util.matching.Regex
 
-class FabricField(width: Int, height: Int, grid: Map[(Int, Int), Set[Int]] ) {
+class FabricField(grid: Map[(Int, Int), Set[Int]] ) {
 
   lazy val nonOverlappingIds: Set[Int] = {
     val (conflictClaims, nonConflictCandidates) = grid.values.toSet.partition(_.size > 1)
     nonConflictCandidates.flatten &~ conflictClaims.flatten
   }
-  
+
   lazy val conflicts: Int = grid.count { case (_, claims) => claims.size > 1 }
 
   def add(claim: Claim): FabricField = {
@@ -25,8 +25,6 @@ class FabricField(width: Int, height: Int, grid: Map[(Int, Int), Set[Int]] ) {
     } yield (i, j)
 
     new FabricField(
-      Math.max(width, claimX),
-      Math.max(height, claimY),
       claimGrid.foldLeft(grid)((res, pos) => res + (pos -> (res.getOrElse(pos, Set.empty) + claimId)))
     )
   }
@@ -36,7 +34,7 @@ class FabricField(width: Int, height: Int, grid: Map[(Int, Int), Set[Int]] ) {
 object FabricField {
   def from(input: Vector[Claim]):FabricField = input.foldLeft(FabricField.empty)(_ add _)
 
-  val empty: FabricField = new FabricField(0, 0, Map.empty)
+  val empty: FabricField = new FabricField(Map.empty)
 }
 
 case class Claim(id: Int, leftMargin: Int, topMargin: Int, width: Int, height: Int)
