@@ -25,7 +25,7 @@ class OverlappingClaimsSpec extends FunSuite with Matchers {
   }
 
   test("find non overlapping claims") {
-    FabricField.from(ProblemInput).nonOverlappingIds.size shouldEqual 1229
+    FabricField.from(ProblemInput).nonOverlappingIds shouldBe Set(819)
   }
 
 }

@@ -7,17 +7,10 @@ import scala.util.matching.Regex
 class FabricField(width: Int, height: Int, grid: Map[(Int, Int), Set[Int]] ) {
 
   lazy val nonOverlappingIds: Set[Int] = {
-    val (_, ids) = grid.foldLeft((Set.empty[Int], Set.empty[Int])) {
-      case ((conflictIds, resIds), (_, claimIds)) => if (claimIds.size == 1 && claimIds.subsetOf(conflictIds)) {
-        (conflictIds, resIds ++ claimIds)
-      } else {
-        (conflictIds ++ claimIds, resIds)
-      }
-    }
-
-    ids
+    val (conflictClaims, nonConflictCandidates) = grid.values.toSet.partition(_.size > 1)
+    nonConflictCandidates.flatten &~ conflictClaims.flatten
   }
-
+  
   lazy val conflicts: Int = grid.count { case (_, claims) => claims.size > 1 }
 
   def add(claim: Claim): FabricField = {
