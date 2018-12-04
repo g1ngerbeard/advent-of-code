@@ -1,5 +1,8 @@
 package me.adventofcode.y2018.d4
 
+import java.time.LocalDate
+
+import me.adventofcode.y2018.d4.ReposeRecordSpec.TestLog
 import org.scalatest.{FunSuite, Inside, Matchers}
 
 class ReposeRecordSpec extends FunSuite with Matchers with Inside {
@@ -17,23 +20,47 @@ class ReposeRecordSpec extends FunSuite with Matchers with Inside {
 
   test("parse log record") {
     val fallsAsleepLog = "[1518-11-02 00:40] falls asleep"
-    val timestamp0040 = LogRecord.parseLogTimestamp("1518-11-02 00:40").right.get
-
-    LogRecord.parse(fallsAsleepLog) shouldBe Right(LogRecord(timestamp0040, FallsAsleep))
+    inside(LogRecord.parseLogTimestamp("1518-11-02 00:40")) {
+      case Right(timestamp) =>
+        LogRecord.parse(fallsAsleepLog) shouldBe Right(LogRecord(timestamp, FallsAsleep))
+    }
 
     val beginsShiftLog = "[1518-11-05 00:03] Guard #99 begins shift"
-    val timestamp0003 = LogRecord.parseLogTimestamp("1518-11-05 00:03").right.get
-
-    LogRecord.parse(beginsShiftLog) shouldBe Right(LogRecord(timestamp0003, BeginsShift(99)))
+    inside(LogRecord.parseLogTimestamp("1518-11-05 00:03")) {
+      case Right(timestamp) =>
+        LogRecord.parse(beginsShiftLog) shouldBe Right(LogRecord(timestamp, BeginsShift(99)))
+    }
 
     val WakesUpLog = "[1518-11-02 00:50] wakes up"
-    val timestamp0050 = LogRecord.parseLogTimestamp("1518-11-02 00:50").right.get
+    inside(LogRecord.parseLogTimestamp("1518-11-02 00:50")) {
+      case Right(timestamp) =>
+        LogRecord.parse(WakesUpLog) shouldBe Right(LogRecord(timestamp, WakesUp))
+    }
 
-    LogRecord.parse(WakesUpLog) shouldBe Right(LogRecord(timestamp0050, WakesUp))
+  }
+
+  test("build daily stats from unordered log events") {
+
+    val records = TestLog
+      .split('\n')
+      .flatMap(line => LogRecord.parse(line).toOption)
+      .toList
+
+    ReposeRecord.buildStats(records) shouldBe List(
+      DayStat(
+        LocalDate.parse("1518-11-01"),
+        10,
+        ((5 to 24) ++ (30 to 54)).toSet
+      ),
+      DayStat(LocalDate.parse("1518-11-02"), 99, (40 to 49).toSet),
+      DayStat(LocalDate.parse("1518-11-03"), 10, (5 to 24).toSet),
+      DayStat(LocalDate.parse("1518-11-04"), 99, (36 to 45).toSet),
+      DayStat(LocalDate.parse("1518-11-05"), 99, (45 to 54).toSet)
+    )
+
   }
 
 }
-
 
 object ReposeRecordSpec {
 
