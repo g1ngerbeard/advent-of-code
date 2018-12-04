@@ -4,19 +4,24 @@ import me.adventofcode.y2018.util.Parsers._
 
 import scala.util.matching.Regex
 
-object OverlappingClaims {
+class FabricField(width: Int, height: Int, grid: Map[(Int, Int), Set[Int]] ) {
 
-  def count(input: Vector[Claim]): Int = input.foldLeft(FabricField.empty)(_ + _).conflicts
+  lazy val nonOverlappingIds: Set[Int] = {
+    val (_, ids) = grid.foldLeft((Set.empty[Int], Set.empty[Int])) {
+      case ((conflictIds, resIds), (_, claimIds)) => if (claimIds.size == 1 && claimIds.subsetOf(conflictIds)) {
+        (conflictIds, resIds ++ claimIds)
+      } else {
+        (conflictIds ++ claimIds, resIds)
+      }
+    }
 
+    ids
+  }
 
-}
+  lazy val conflicts: Int = grid.count { case (_, claims) => claims.size > 1 }
 
-class FabricField(width: Int, height: Int, grid: Map[(Int, Int), Int] ) {
-
-  lazy val conflicts: Int = grid.count{ case (_, claims) => claims > 1 }
-
-  def +(claim: Claim): FabricField = {
-    val Claim(_, leftMargin, topMargin, claimWidth, claimHeight) = claim
+  def add(claim: Claim): FabricField = {
+    val Claim(claimId, leftMargin, topMargin, claimWidth, claimHeight) = claim
 
     val claimX = leftMargin + claimWidth - 1
     val claimY = topMargin + claimHeight - 1
@@ -29,13 +34,15 @@ class FabricField(width: Int, height: Int, grid: Map[(Int, Int), Int] ) {
     new FabricField(
       Math.max(width, claimX),
       Math.max(height, claimY),
-      claimGrid.foldLeft(grid)((res, pos) => res + (pos -> (res.getOrElse(pos, 0) + 1)))
+      claimGrid.foldLeft(grid)((res, pos) => res + (pos -> (res.getOrElse(pos, Set.empty) + claimId)))
     )
   }
 
 }
 
 object FabricField {
+  def from(input: Vector[Claim]):FabricField = input.foldLeft(FabricField.empty)(_ add _)
+
   val empty: FabricField = new FabricField(0, 0, Map.empty)
 }
 
@@ -45,7 +52,6 @@ object Claim {
 
   private val claimRegex: Regex = "#(\\d+) @ (\\d+),(\\d+): (\\d+)x(\\d+)".r
 
-  //#1 @ 1,3: 4x4
   def parse(serialized: String): Either[String, Claim] = serialized match {
       case claimRegex(idStr, leftMarginStr, topMarginStr, widthStr, heightStr) =>
         for {

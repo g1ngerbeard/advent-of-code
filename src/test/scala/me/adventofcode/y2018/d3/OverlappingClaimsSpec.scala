@@ -1,6 +1,6 @@
 package me.adventofcode.y2018.d3
 
-import me.adventofcode.y2018.d3.OverlappingClaimsSpec.{ParsedTestInput, TestInput}
+import me.adventofcode.y2018.d3.OverlappingClaimsSpec.{ParsedTestInput, TestInput, ProblemInput}
 import org.scalatest.{FunSuite, Matchers}
 
 import scala.io.Source
@@ -8,7 +8,7 @@ import scala.io.Source
 class OverlappingClaimsSpec extends FunSuite with Matchers {
 
   test("count overlapping square inches of fabric") {
-    OverlappingClaims.count(ParsedTestInput) shouldBe 4
+    FabricField.from(ParsedTestInput).conflicts shouldBe 4
   }
 
   test("parse claims list") {
@@ -21,18 +21,22 @@ class OverlappingClaimsSpec extends FunSuite with Matchers {
   }
 
   test("solve day 3 task") {
-    val input = Source
-      .fromResource("2018/d3/claims.txt")
-      .getLines()
-      .flatMap(Claim.parse(_).toOption)
-      .toVector
+    FabricField.from(ProblemInput).conflicts shouldEqual 110546
+  }
 
-    OverlappingClaims.count(input) shouldEqual 110546
+  test("find non overlapping claims") {
+    FabricField.from(ProblemInput).nonOverlappingIds.size shouldEqual 1229
   }
 
 }
 
 object OverlappingClaimsSpec {
+
+  lazy val ProblemInput: Vector[Claim] = Source
+    .fromResource("2018/d3/claims.txt")
+    .getLines()
+    .flatMap(Claim.parse(_).toOption)
+    .toVector
 
   val ParsedTestInput = Vector(
     Claim(1, 1, 3, 4, 4),
