@@ -6,41 +6,56 @@ import me.adventofcode.y2018.util.Parsers._
 
 import scala.util.matching.Regex
 
-object ReposeRecord {
+class GuardStatistics(logRecords: List[String]) {
 
-  def parseAndBuildStats(logRecords: List[String]): List[DayStat] =
-    buildStats(
-      logRecords.sorted.flatMap(LogRecord.parse(_).toOption)
-    )
-
-  // todo: verify input?
-  def buildStats(logRecords: List[LogRecord]): List[DayStat] =
+  lazy val dailyStats: List[DayStat] =
     logRecords
+      .sorted
+      .flatMap(LogRecord.parse(_).toOption)
       .groupBy {
-        case LogRecord(timestamp, BeginsShift(_)) if timestamp.getHour >= 23 => timestamp.plusDays(1).toLocalDate
+        case LogRecord(timestamp, BeginsShift(_)) if timestamp.getHour == 23 => timestamp.plusDays(1).toLocalDate
         case LogRecord(timestamp, _) => timestamp.toLocalDate
       }
       .toList
-      .map(buildDayStat _ tupled)
+      .map { case (date, records) => DayStat(date, records) }
       .sortWith((first, second) => first.date.compareTo(second.date) < 0)
 
+  lazy val sleepyGuardAndMinute: (Int, Int) = {
+    val statsByGuard = dailyStats.groupBy(_.guardId)
+
+    val (mostSleepyGuard, _) = statsByGuard.maxBy(_._2.map(_.sleepMinutes.size).sum)
+
+    val mostSleepyMinute = statsByGuard(mostSleepyGuard)
+      .flatMap(_.sleepMinutes.toList)
+      .groupBy(identity)
+      .maxBy(_._2.size)
+      ._1
+
+    (mostSleepyGuard, mostSleepyMinute)
+  }
+
+}
+
+case class GuardStat(guardId: Int, sleepingMinutes: Map[Int, Int])
+
+object DayStat {
+
   // todo: exhaustive pattern match
-  private def buildDayStat(date: LocalDate, dayRecords: List[LogRecord]): DayStat = {
-    val (stat, _) = dayRecords match {
+  def apply(date: LocalDate, dayRecords: List[LogRecord]): DayStat = {
+    val (resultStat, _) = dayRecords match {
       case LogRecord(_, BeginsShift(guardId)) :: tailRecords =>
-        tailRecords.foldLeft((DayStat(date, guardId, Set.empty), Option.empty[Int])) {
-          case ((dayStat, sleepingSince), currentRecord) =>
-            currentRecord match {
-              case LogRecord(timestamp, FallsAsleep) => (dayStat, sleepingSince.orElse(Some(timestamp.getMinute)))
-              case LogRecord(timestamp, WakesUp) =>
-                val updatedStat = sleepingSince.map(dayStat.addSleepingTime(_, timestamp.getMinute)).getOrElse(dayStat)
-                (updatedStat, None)
-              case _ => (dayStat, sleepingSince)
-            }
+
+        val initStat = DayStat(date, guardId, Set.empty)
+        val initAsleepSince = Option.empty[Int]
+
+        tailRecords.foldLeft((initStat, initAsleepSince)) {
+          case ((dayStat, None), LogRecord(timestamp, FallsAsleep))          => (dayStat, Some(timestamp.getMinute))
+          case ((dayStat, Some(asleepSince)), LogRecord(timestamp, WakesUp)) => (dayStat.addSleepingTime(asleepSince, timestamp.getMinute), None)
+          case (result, _)                                                   => result
         }
     }
 
-    stat
+    resultStat
   }
 
 }
@@ -77,7 +92,7 @@ sealed trait GuardEvent
 
 object GuardEvent {
 
-  val BeginsShiftRegex: Regex = s"Guard #(\\d{2}) begins shift".r
+  val BeginsShiftRegex: Regex = s"Guard #(\\d+) begins shift".r
 
   def parse(message: String): Either[String, GuardEvent] = message match {
     case "falls asleep"       => Right(FallsAsleep)
