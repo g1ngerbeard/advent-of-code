@@ -41,19 +41,16 @@ class ReposeRecordSpec extends FunSuite with Matchers with Inside {
 
   test("build daily stats from unordered log events") {
 
-    val records = TestLog
-      .split('\n')
-      .flatMap(line => LogRecord.parse(line).toOption)
-      .toList
+    val input = TestLog.split('\n').toList
 
-    ReposeRecord.buildStats(records) shouldBe List(
+    ReposeRecord.parseAndBuildStats(input) shouldBe List(
       DayStat(
         LocalDate.parse("1518-11-01"),
         10,
-        ((5 to 24) ++ (30 to 54)).toSet
+        (5 to 24).toSet ++ (30 to 54).toSet
       ),
       DayStat(LocalDate.parse("1518-11-02"), 99, (40 to 49).toSet),
-      DayStat(LocalDate.parse("1518-11-03"), 10, (5 to 24).toSet),
+      DayStat(LocalDate.parse("1518-11-03"), 10, (24 to 28).toSet),
       DayStat(LocalDate.parse("1518-11-04"), 99, (36 to 45).toSet),
       DayStat(LocalDate.parse("1518-11-05"), 99, (45 to 54).toSet)
     )

@@ -8,39 +8,47 @@ import scala.util.matching.Regex
 
 object ReposeRecord {
 
-  // todo: veriry input?
-  def buildStats(logRecords: List[LogRecord]): List[DayStat] = {
+  def parseAndBuildStats(logRecords: List[String]): List[DayStat] =
+    buildStats(
+      logRecords.sorted.flatMap(LogRecord.parse(_).toOption)
+    )
+
+  // todo: verify input?
+  def buildStats(logRecords: List[LogRecord]): List[DayStat] =
     logRecords
-      .sortWith((first, second) => first.timestamp.compareTo(second.timestamp) < 0)
-      .groupBy(_.timestamp.toLocalDate)
+      .groupBy {
+        case LogRecord(timestamp, BeginsShift(_)) if timestamp.getHour >= 23 => timestamp.plusDays(1).toLocalDate
+        case LogRecord(timestamp, _) => timestamp.toLocalDate
+      }
       .toList
       .map(buildDayStat _ tupled)
-  }
+      .sortWith((first, second) => first.date.compareTo(second.date) < 0)
 
+  // todo: exhaustive pattern match
   private def buildDayStat(date: LocalDate, dayRecords: List[LogRecord]): DayStat = {
-
-    val (resultStat, _) = dayRecords match {
-      case (first @ LogRecord(_, BeginsShift(guardId))) :: restRecords =>
-          restRecords.foldLeft((DayStat(date, guardId, Set.empty), first)){
-            case ((stat, lastRecord), record) => record.eventType match {
-              case FallsAsleep => (stat, record)
-              case WakesUp =>
-                (stat.addSleepingTime(lastRecord.timestamp.getMinute, record.timestamp.getMinute), record)
+    val (stat, _) = dayRecords match {
+      case LogRecord(_, BeginsShift(guardId)) :: tailRecords =>
+        tailRecords.foldLeft((DayStat(date, guardId, Set.empty), Option.empty[Int])) {
+          case ((dayStat, sleepingSince), currentRecord) =>
+            currentRecord match {
+              case LogRecord(timestamp, FallsAsleep) => (dayStat, sleepingSince.orElse(Some(timestamp.getMinute)))
+              case LogRecord(timestamp, WakesUp) =>
+                val updatedStat = sleepingSince.map(dayStat.addSleepingTime(_, timestamp.getMinute)).getOrElse(dayStat)
+                (updatedStat, None)
+              case _ => (dayStat, sleepingSince)
             }
-          }
+        }
     }
 
-    resultStat
+    stat
   }
 
 }
 
 case class DayStat(date: LocalDate, guardId: Int, sleepMinutes: Set[Int]) {
 
-  // todo: to or until?
   def addSleepingTime(firstMinute: Int, lastMinute: Int): DayStat =
-    DayStat(date, guardId, sleepMinutes ++ (firstMinute to lastMinute).toSet)
-
+    DayStat(date, guardId, sleepMinutes ++ (firstMinute until lastMinute).toSet)
 
 }
 
@@ -58,7 +66,7 @@ object LogRecord {
     case LogRecordRegex(timestampStr, message) =>
       for {
         timestamp <- parseLogTimestamp(timestampStr)
-        event     <- GuardEvent.parse(message)
+        event <- GuardEvent.parse(message)
       } yield LogRecord(timestamp, event)
     case _ => Left(s"Unable to parse record: $value")
   }
