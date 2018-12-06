@@ -20,7 +20,7 @@ class GuardStatistics(logRecords: List[String]) {
       .map { case (date, records) => DayStat(date, records) }
       .sortWith((first, second) => first.date.compareTo(second.date) < 0)
 
-  lazy val sleepyGuardAndMinute: (Int, Int) = {
+  lazy val mostSleepyGuardAndMinute: (Int, Int) = {
     val statsByGuard = dailyStats.groupBy(_.guardId)
 
     val (mostSleepyGuard, _) = statsByGuard.maxBy(_._2.map(_.sleepMinutes.size).sum)
@@ -33,6 +33,17 @@ class GuardStatistics(logRecords: List[String]) {
 
     (mostSleepyGuard, mostSleepyMinute)
   }
+
+  lazy val mostSleepyMinuteForGuard: (Int, Int) =
+      dailyStats
+        .groupBy(_.guardId)
+        .toList
+        .flatMap {
+          case (guardId, stats) => stats.flatMap(_.sleepMinutes.map(guardId -> _))
+        }
+        .groupBy(identity)
+        .maxBy(_._2.size)
+        ._1
 
 }
 

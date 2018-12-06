@@ -61,11 +61,15 @@ class ReposeRecordSpec extends FunSuite with Matchers with Inside {
 
   test("find the most sleepy guard") {
     val input = TestLog.split('\n').toList
-    new GuardStatistics(input).sleepyGuardAndMinute shouldBe (10, 24)
+    new GuardStatistics(input).mostSleepyGuardAndMinute shouldBe (10, 24)
   }
 
   test("solve day 4 issue") {
-    new GuardStatistics(ProblemInput).sleepyGuardAndMinute shouldBe (2411,42)
+    new GuardStatistics(ProblemInput).mostSleepyGuardAndMinute shouldBe (2411, 42)
+  }
+
+  test("solve day 4 issue - part 2") {
+    new GuardStatistics(ProblemInput).mostSleepyMinuteForGuard should be (2999, 24)
   }
 
 }
