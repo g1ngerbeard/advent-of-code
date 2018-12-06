@@ -2,12 +2,12 @@ package me.adventofcode.y2018.d4
 
 import java.time.LocalDate
 
-import me.adventofcode.y2018.d4.ReposeRecordSpec.{ProblemInput, TestLog}
+import me.adventofcode.y2018.d4.ReposeRecordSuite.{ProblemInput, TestLog}
 import org.scalatest.{FunSuite, Inside, Matchers}
 
 import scala.io.Source
 
-class ReposeRecordSpec extends FunSuite with Matchers with Inside {
+class ReposeRecordSuite extends FunSuite with Matchers with Inside {
 
   test("parse log timestamp") {
     inside(LogRecord.parseLogTimestamp("1518-11-02 00:40")) {
@@ -74,7 +74,7 @@ class ReposeRecordSpec extends FunSuite with Matchers with Inside {
 
 }
 
-object ReposeRecordSpec {
+object ReposeRecordSuite {
 
   lazy val ProblemInput: List[String] = Source
     .fromResource("2018/d4/guard_log.txt")

@@ -1,11 +1,11 @@
 package me.adventofcode.y2018.d3
 
-import me.adventofcode.y2018.d3.OverlappingClaimsSpec.{ParsedTestInput, TestInput, ProblemInput}
+import me.adventofcode.y2018.d3.OverlappingClaimsSuite.{ParsedTestInput, TestInput, ProblemInput}
 import org.scalatest.{FunSuite, Matchers}
 
 import scala.io.Source
 
-class OverlappingClaimsSpec extends FunSuite with Matchers {
+class OverlappingClaimsSuite extends FunSuite with Matchers {
 
   test("count overlapping square inches of fabric") {
     FabricField.from(ParsedTestInput).conflicts shouldBe 4
@@ -30,7 +30,7 @@ class OverlappingClaimsSpec extends FunSuite with Matchers {
 
 }
 
-object OverlappingClaimsSpec {
+object OverlappingClaimsSuite {
 
   lazy val ProblemInput: Vector[Claim] = Source
     .fromResource("2018/d3/claims.txt")
