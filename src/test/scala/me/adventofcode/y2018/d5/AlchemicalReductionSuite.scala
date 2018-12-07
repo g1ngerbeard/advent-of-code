@@ -15,8 +15,8 @@ class AlchemicalReductionSuite extends FunSuite with Matchers with Inside {
     AlchemicalReduction.reduce(ProblemInput).length shouldBe 10762
   }
 
-  test("solve day 5 problem part 2") {
-    println(AlchemicalReduction.shortestReduction(ProblemInput).length)
+  ignore("solve day 5 problem part 2") {
+    AlchemicalReduction.shortestReduction(ProblemInput).length shouldBe 6946
   }
 
 }

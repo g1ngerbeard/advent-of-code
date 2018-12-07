@@ -61,7 +61,7 @@ object DayStat {
 
         tailRecords.foldLeft((initStat, initAsleepSince)) {
           case ((dayStat, None), LogRecord(timestamp, FallsAsleep))          => (dayStat, Some(timestamp.getMinute))
-          case ((dayStat, Some(asleepSince)), LogRecord(timestamp, WakesUp)) => (dayStat.addSleepingTime(asleepSince, timestamp.getMinute), None)
+          case ((dayStat, Some(asleepSince)), LogRecord(timestamp, WakesUp)) => (dayStat +~ (asleepSince, timestamp.getMinute), None)
           case (result, _)                                                   => result
         }
     }
@@ -73,7 +73,7 @@ object DayStat {
 
 case class DayStat(date: LocalDate, guardId: Int, sleepMinutes: Set[Int]) {
 
-  def addSleepingTime(firstMinute: Int, lastMinute: Int): DayStat =
+  def +~(firstMinute: Int, lastMinute: Int): DayStat =
     DayStat(date, guardId, sleepMinutes ++ (firstMinute until lastMinute).toSet)
 
 }
