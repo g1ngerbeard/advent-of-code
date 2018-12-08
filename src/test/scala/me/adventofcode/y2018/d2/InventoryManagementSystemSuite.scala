@@ -26,6 +26,10 @@ class InventoryManagementSystemSuite extends FunSuite with Matchers {
     InventoryManagementSystem.count(ProblemInput) shouldBe (247,22)
   }
 
+  test("solve day 2 problem - part 2"){
+    println(InventoryManagementSystem.findCommon(ProblemInput))
+  }
+
 }
 
 object InventoryManagementSystemSuite {

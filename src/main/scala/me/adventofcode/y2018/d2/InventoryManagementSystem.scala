@@ -15,4 +15,24 @@ object InventoryManagementSystem {
     (pair, triple)
   }
 
+  def findCommon(ids: List[String]): Option[String] =
+    ids
+      .combinations(2)
+      .collectFirst { case List(a, b) if isSimilar(a, b) => commonPart(a, b) }
+
+  def commonPart(a: String, b: String): String =
+    ("" /: (a zip b)) {
+      case (res, (ca, cb)) => if (ca != cb) res else res + ca
+    }
+
+  def isSimilar(a: String, b: String): Boolean = {
+    val diffChars = (0 /: (a zip b)) {
+      case (diff, (ca, cb)) => if (ca != cb) diff + 1 else diff
+    }
+
+    diffChars < 2
+  }
+
+  (0, 1)
+
 }
