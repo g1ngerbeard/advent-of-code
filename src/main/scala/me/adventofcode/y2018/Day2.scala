@@ -1,6 +1,6 @@
-package me.adventofcode.y2018.d2
+package me.adventofcode.y2018
 
-object InventoryManagementSystem {
+object Day2 {
 
   def count(ids: List[String]):(Int, Int) = {
     ids.map(single).reduce[(Int, Int)] { case ((a,b), (c,d)) => (a + c, b + d) }

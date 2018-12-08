@@ -1,4 +1,4 @@
-package me.adventofcode.y2018.d3
+package me.adventofcode.y2018
 
 import me.adventofcode.y2018.util.Parsers._
 
