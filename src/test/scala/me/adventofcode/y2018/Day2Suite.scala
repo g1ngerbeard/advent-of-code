@@ -35,7 +35,7 @@ class Day2Suite extends FunSuite with Matchers {
 object Day2Suite {
 
   lazy val ProblemInput: List[String] = Source
-    .fromResource("2018/d2/box_ids.txt")
+    .fromResource("2018/day2.txt")
     .getLines()
     .toList
 

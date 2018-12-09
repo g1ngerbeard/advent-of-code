@@ -1,4 +1,4 @@
-package me.adventofcode.y2018.d4
+package me.adventofcode.y2018
 
 import java.time.{LocalDate, LocalDateTime}
 

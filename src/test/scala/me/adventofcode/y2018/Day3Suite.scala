@@ -1,13 +1,11 @@
 package me.adventofcode.y2018
 
-import me.adventofcode.y2018.Day3Spec.{ParsedTestInput, ProblemInput, TestInput}
+import me.adventofcode.y2018.Day3Suite.{ParsedTestInput, ProblemInput, TestInput}
 
 import scala.io.Source
-import org.scalatest.{FunSuite, Inside, Matchers}
+import org.scalatest.{FunSuite, Matchers}
 
-import scala.collection.JavaConverters._
-
-class Day3Spec extends FunSuite with Matchers {
+class Day3Suite extends FunSuite with Matchers {
 
   test("count overlapping square inches of fabric") {
     FabricField.from(ParsedTestInput).conflicts shouldBe 4
@@ -32,15 +30,15 @@ class Day3Spec extends FunSuite with Matchers {
 
 }
 
-object Day3Spec {
+object Day3Suite {
 
   lazy val ProblemInput: Vector[Claim] = Source
-    .fromResource("2018/d3/claims.txt")
+    .fromResource("2018/day3.txt")
     .getLines()
     .flatMap(Claim.parse(_).toOption)
     .toVector
 
-  val ParsedTestInput = Vector(
+  val ParsedTestInput: Vector[Claim] = Vector(
     Claim(1, 1, 3, 4, 4),
     Claim(2, 3, 1, 4, 4),
     Claim(3, 5, 5, 2, 2)

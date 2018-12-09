@@ -1,13 +1,13 @@
-package me.adventofcode.y2018.d4
+package me.adventofcode.y2018
 
 import java.time.LocalDate
 
-import me.adventofcode.y2018.d4.ReposeRecordSuite.{ProblemInput, TestLog}
+import me.adventofcode.y2018.Day4Suite.{ProblemInput, TestLog}
 import org.scalatest.{FunSuite, Inside, Matchers}
 
 import scala.io.Source
 
-class ReposeRecordSuite extends FunSuite with Matchers with Inside {
+class Day4Suite extends FunSuite with Matchers with Inside {
 
   test("parse log timestamp") {
     inside(LogRecord.parseLogTimestamp("1518-11-02 00:40")) {
@@ -61,23 +61,23 @@ class ReposeRecordSuite extends FunSuite with Matchers with Inside {
 
   test("find the most sleepy guard") {
     val input = TestLog.split('\n').toList
-    new GuardStatistics(input).mostSleepyGuardAndMinute shouldBe (10, 24)
+    new GuardStatistics(input).mostSleepyGuardAndMinute shouldBe(10, 24)
   }
 
   test("solve day 4 issue") {
-    new GuardStatistics(ProblemInput).mostSleepyGuardAndMinute shouldBe (2411, 42)
+    new GuardStatistics(ProblemInput).mostSleepyGuardAndMinute shouldBe(2411, 42)
   }
 
   test("solve day 4 issue - part 2") {
-    new GuardStatistics(ProblemInput).mostSleepyMinuteForGuard should be (2999, 24)
+    new GuardStatistics(ProblemInput).mostSleepyMinuteForGuard should be(2999, 24)
   }
 
 }
 
-object ReposeRecordSuite {
+object Day4Suite {
 
   lazy val ProblemInput: List[String] = Source
-    .fromResource("2018/d4/guard_log.txt")
+    .fromResource("2018/day4.txt")
     .getLines()
     .toList
 

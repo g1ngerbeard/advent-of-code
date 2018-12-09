@@ -1,6 +1,6 @@
-package me.adventofcode.y2018.d5
+package me.adventofcode.y2018
 
-object AlchemicalReduction {
+object Day5 {
 
   val UnitTypes: Set[Char] = ('a' to 'z').toSet
 
