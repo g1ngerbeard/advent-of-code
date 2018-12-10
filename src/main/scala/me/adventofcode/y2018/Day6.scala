@@ -6,9 +6,9 @@ object Day6 {
 
   def largestFiniteArea(coordinates: Vector[Coordinate]): Int = {
 
-    def closestCoordinates(x: Int, y: Int): Vector[Coordinate] =
+    def closestCoordinates(point: Coordinate): Vector[Coordinate] =
       coordinates
-        .groupBy(distance(_, (x, y)))
+        .groupBy(distance(_, point))
         .minBy(_._1)
         ._2
 
@@ -20,17 +20,15 @@ object Day6 {
     val topY = ys.min
     val bottomY = ys.max
 
-    val areasCoverage: Seq[(Coordinate, Vector[Coordinate])] = for {
+    val areasCoverage = for {
       x <- leftX to rightX
       y <- topY to bottomY
-    } yield (x, y) -> closestCoordinates(x, y)
+    } yield (x, y)
 
-    coordinates
-      .map(c =>
-        areasCoverage.collect {
-          case (point, Vector(`c`)) => point
-        }
-      )
+    areasCoverage
+      .groupBy(closestCoordinates)
+      .filterKeys(_.size == 1)
+      .values
       .filterNot(_.exists {
         case (x, y) => x == leftX || x == rightX || y == topY || y == bottomY
       })
