@@ -12,6 +12,10 @@ class Day6Suite extends FunSuite with Matchers {
     Day6.largestFiniteArea(ProblemInput) shouldBe 4186
   }
 
+  test("solve problem part 2"){
+    println(Day6.adjacentAreaSize(ProblemInput))
+  }
+
 }
 
 object Day6Suite {

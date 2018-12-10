@@ -11,8 +11,8 @@ class Day1Suite extends FunSuite with Matchers {
     Day1.resultingFrequency(TestInput) shouldEqual 531
   }
 
-  test("solve day 1 problem - part 2") {
-    println(Day1.firstRepeatedFrequency(TestInput))
+  ignore("solve day 1 problem - part 2") {
+    Day1.firstRepeatedFrequency(TestInput)
   }
 
 }
