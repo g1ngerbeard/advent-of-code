@@ -6,6 +6,17 @@ object Day8 {
 
   def sum(node: Node): Int = node.metadata.sum + node.children.map(sum).sum
 
+  def value(node: Node): Int = if (node.children.nonEmpty) {
+    node
+      .metadata
+      .map(_ - 1)
+      .map(node.children.lift)
+      .flatten
+      .map(value)
+      .sum
+  } else {
+    node.metadata.sum
+  }
 }
 
 object Node {
