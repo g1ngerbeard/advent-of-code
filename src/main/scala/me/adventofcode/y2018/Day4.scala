@@ -3,8 +3,10 @@ package me.adventofcode.y2018
 import java.time.{LocalDate, LocalDateTime}
 
 import me.adventofcode.y2018.util.Parsers._
+import me.adventofcode.y2018.util.extensions._
 
 import scala.util.matching.Regex
+
 
 class GuardStatistics(logRecords: List[String]) {
 
@@ -53,20 +55,20 @@ object DayStat {
 
   // todo: exhaustive pattern match
   def apply(date: LocalDate, dayRecords: List[LogRecord]): DayStat = {
-    val (resultStat, _) = dayRecords match {
+    dayRecords match {
       case LogRecord(_, BeginsShift(guardId)) :: tailRecords =>
 
         val initStat = DayStat(date, guardId, Set.empty)
         val initAsleepSince = Option.empty[Int]
 
-        tailRecords.foldLeft((initStat, initAsleepSince)) {
-          case ((dayStat, None), LogRecord(timestamp, FallsAsleep))          => (dayStat, Some(timestamp.getMinute))
-          case ((dayStat, Some(asleepSince)), LogRecord(timestamp, WakesUp)) => (dayStat +~ (asleepSince, timestamp.getMinute), None)
-          case (result, _)                                                   => result
-        }
+        tailRecords
+          .foldLeft((initStat, initAsleepSince)) {
+            case ((dayStat, None), LogRecord(timestamp, FallsAsleep))          => (dayStat, Some(timestamp.getMinute))
+            case ((dayStat, Some(asleepSince)), LogRecord(timestamp, WakesUp)) => (dayStat +~ (asleepSince, timestamp.getMinute), None)
+            case (result, _)                                                   => result
+          }
+          .left
     }
-
-    resultStat
   }
 
 }

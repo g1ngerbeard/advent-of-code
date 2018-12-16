@@ -1,8 +1,10 @@
 package me.adventofcode.y2018
 
+import me.adventofcode.y2018.util.extensions._
+
 object Day8 {
 
-  def buildGraph(input: Vector[Int]): Node = Node.parse(input)._1
+  def buildGraph(input: Vector[Int]): Node = Node.parse(input).left
 
   def sum(node: Node): Int = node.metadata.sum + node.children.map(sum).sum
 
@@ -27,14 +29,12 @@ object Node {
     val metadataSize = header(1)
 
     val (children, restWOChildren) = ((Vector.empty[Node], rest) /: (0 until childrenSize)) {
-      case ((childrenRes, tailRes) ,_) =>
-        val (node, newTail) = parse(tailRes)
-        (childrenRes :+ node, newTail)
+      case ((childrenRes, tailRes), _) => parse(tailRes).leftMap(childrenRes :+ _)
     }
 
-    val (metadata, restWOMetadata) = restWOChildren.splitAt(metadataSize)
-
-    (Node(metadata, children), restWOMetadata)
+    restWOChildren
+      .splitAt(metadataSize)
+      .leftMap(Node(_, children))
   }
 
 }
