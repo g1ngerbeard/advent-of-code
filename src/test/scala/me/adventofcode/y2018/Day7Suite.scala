@@ -15,8 +15,6 @@ class Day7Suite extends FunSuite with Matchers {
 
 object Day7Suite {
 
-  val TestInput = ???
-
   val ProblemInput: Vector[(String, String)] = Source
     .fromResource("2018/day7.txt")
     .getLines()

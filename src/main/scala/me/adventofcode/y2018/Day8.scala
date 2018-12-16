@@ -23,10 +23,7 @@ object Day8 {
 object Node {
 
   def parse(input: Vector[Int]): (Node, Vector[Int]) = {
-    val (header, rest) = input.splitAt(2)
-
-    val childrenSize = header(0)
-    val metadataSize = header(1)
+    val (Vector(childrenSize, metadataSize), rest) = input.splitAt(2)
 
     val (children, restWOChildren) = ((Vector.empty[Node], rest) /: (0 until childrenSize)) {
       case ((childrenRes, tailRes), _) => parse(tailRes).leftMap(childrenRes :+ _)
