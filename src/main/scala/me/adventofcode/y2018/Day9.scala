@@ -1,5 +1,7 @@
 package me.adventofcode.y2018
 
-class Day9 {
+object Day9 {
+
+  def highScore(players: Int, lastMarble: Int): Int = ???
 
 }

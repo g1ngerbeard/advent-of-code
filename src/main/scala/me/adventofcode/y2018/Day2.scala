@@ -7,10 +7,10 @@ object Day2 {
   }
 
   def single(id: String): (Int, Int) = {
-    val occurances = id.groupBy(identity).mapValues(_.length)
+    val occurrences = id.groupBy(identity).mapValues(_.length)
 
-    val pair = if (occurances.values.exists(_ == 2)) 1 else 0
-    val triple = if (occurances.values.exists(_ == 3)) 1 else 0
+    val pair = if (occurrences.values.exists(_ == 2)) 1 else 0
+    val triple = if (occurrences.values.exists(_ == 3)) 1 else 0
 
     (pair, triple)
   }
