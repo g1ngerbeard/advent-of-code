@@ -8,15 +8,13 @@ object Day8 {
 
   def sum(node: Node): Int = node.metadata.sum + node.children.map(sum).sum
 
-  def value(node: Node): Int = if (node.children.nonEmpty) {
-    val lifted = node.children.lift
+  def value(node: Node): Int = node match {
+    case Node(metadata, children) if children.nonEmpty =>
+      metadata
+        .flatMap(i => children.lift(i - 1).map(value))
+        .sum
 
-    node
-      .metadata
-      .flatMap(i => lifted(i - 1).map(value))
-      .sum
-  } else {
-    node.metadata.sum
+    case Node(metadata, _) => metadata.sum
   }
 }
 
@@ -35,6 +33,5 @@ object Node {
   }
 
 }
-
 
 case class Node(metadata: Vector[Int], children: Vector[Node])

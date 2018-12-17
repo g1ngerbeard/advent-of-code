@@ -14,6 +14,7 @@ object extensions {
 
     def right: R = tuple2._2
 
+    def fold[T](f: (L, R) => T): T = f(tuple2._1, tuple2._2)
   }
 
 }
