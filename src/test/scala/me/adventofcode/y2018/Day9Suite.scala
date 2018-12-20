@@ -16,6 +16,10 @@ class Day9Suite extends FunSuite with Matchers {
     Day9.highScore(424, 71144) shouldBe 405143
   }
 
+  ignore("solve problem part 2") {
+    Day9.highScore(424, 71144 * 100)
+  }
+
   test("add and remove elements to ring") {
 
     Ring(Vector(1, 2), 0) <+ 3 shouldBe Ring(Vector(1, 2, 3), 0)

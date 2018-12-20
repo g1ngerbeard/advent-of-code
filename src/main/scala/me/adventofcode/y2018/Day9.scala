@@ -10,24 +10,27 @@ object Day9 extends App {
 
     @tailrec
     def gameLoop(marbleRing: Ring, playerRing: Ring, playerScores: Map[Int, Int], marblePot: Vector[Int]): Int = {
+
+      val currentPlayer = playerRing.current()
+      val nextPlayerRing = playerRing >> 1
+
       marblePot match {
         case nextMarble +: rest =>
           if (nextMarble % 23 == 0) {
             val nextMarbleRing = marbleRing << 7
             val removedMarble = nextMarbleRing.current()
-            val nextScores = playerScores.computeWithDefault(playerRing.current(), _ + nextMarble + removedMarble, 0)
+            val nextScores = playerScores.computeWithDefault(currentPlayer, _ + nextMarble + removedMarble, 0)
 
             gameLoop(
               (nextMarbleRing >> 1).dropLeft,
-              playerRing >> 1,
+              nextPlayerRing,
               nextScores,
               rest
             )
-
           } else {
             gameLoop(
               marbleRing >> 1 >+ nextMarble >> 1,
-              playerRing >> 1,
+              nextPlayerRing,
               playerScores,
               rest
             )
