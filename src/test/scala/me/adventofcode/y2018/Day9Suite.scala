@@ -4,7 +4,7 @@ import org.scalatest.{FunSuite, Matchers}
 
 class Day9Suite extends FunSuite with Matchers {
 
-  ignore("solve problem part 1") {
+  ignore("output highest score in the end of the game") {
     Day9.highScore(10, 1618) shouldBe 8317
     Day9.highScore(13, 7999) shouldBe 146373
     Day9.highScore(17, 1104) shouldBe 2764
@@ -12,11 +12,19 @@ class Day9Suite extends FunSuite with Matchers {
     Day9.highScore(30, 5807) shouldBe 37305
   }
 
+  test("solve problem part 1") {
+    Day9.highScore(424, 71144) shouldBe 405143
+  }
+
   test("add and remove elements to ring") {
 
-    Ring(Vector(1, 2), 0) <+ 3 shouldBe Ring(Vector(3, 1, 2), 1)
+    Ring(Vector(1, 2), 0) <+ 3 shouldBe Ring(Vector(1, 2, 3), 0)
 
-    Ring(Vector(1, 2, 3), 2) >+ 4 shouldBe Ring(Vector(4, 1, 2, 3), 3)
+    Ring(Vector(1, 2, 3), 0) << 1 shouldBe Ring(Vector(1, 2, 3), 2)
+
+    Ring(Vector(1, 2, 3), 2) >> 1 shouldBe Ring(Vector(1, 2, 3), 0)
+
+    Ring(Vector(1, 2, 3), 2) >+ 4 shouldBe Ring(Vector(1, 2, 3, 4), 2)
 
     Ring(Vector(1, 2, 3), 2).dropLeft shouldBe Ring(Vector(1, 3), 1)
 
@@ -32,7 +40,11 @@ class Day9Suite extends FunSuite with Matchers {
 
     ring >> 2 <+ 5 <+ 6 shouldBe Ring(Vector(1, 2, 5, 6, 3, 4), 4)
 
-    ring.dropLeft >> 2 >+ 5 shouldBe Ring(Vector(1, 2, 3, 5), 3)
+    ring.dropLeft >> 2 >+ 5 shouldBe Ring(Vector(1, 2, 3, 5), 2)
+
+    (ring >> 1).dropRight >+ 5 shouldBe Ring(Vector(1, 2, 5, 4), 1)
+
+    ring.dropRight >> 2 >+ 5 shouldBe Ring(Vector(1, 3, 4, 5), 2)
 
   }
 

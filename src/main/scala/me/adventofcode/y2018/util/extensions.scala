@@ -15,6 +15,17 @@ object extensions {
     def right: R = tuple2._2
 
     def fold[T](f: (L, R) => T): T = f(tuple2._1, tuple2._2)
+
+  }
+
+  implicit class MapExtension[K, V](map: Map[K, V]) {
+
+    def computeWithDefault(k: K, f: V => V, default: V): Map[K, V] = compute(k, _.map(f).orElse(Some(default)))
+
+    def compute(k: K, f: Option[V] => Option[V]): Map[K, V] = f(map.get(k)).map(map.updated(k, _)).getOrElse(map)
+
+    def valueOfMaxKey(implicit cmp: Ordering[K]): V = map.maxBy(_.left).right
+
   }
 
 }
