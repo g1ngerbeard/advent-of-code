@@ -4,20 +4,24 @@ import org.scalatest.{FunSuite, Matchers}
 
 class Day9Suite extends FunSuite with Matchers {
 
-  ignore("output highest score in the end of the game") {
-    Day9.highScore(10, 1618) shouldBe 8317
+  test("output highest score in the end of the game") {
     Day9.highScore(13, 7999) shouldBe 146373
     Day9.highScore(17, 1104) shouldBe 2764
     Day9.highScore(21, 6111) shouldBe 54718
     Day9.highScore(30, 5807) shouldBe 37305
   }
 
-  test("solve problem part 1") {
+  ignore("solve problem part 1") {
     Day9.highScore(424, 71144) shouldBe 405143
   }
 
   ignore("solve problem part 2") {
-    Day9.highScore(424, 71144 * 100)
+    Day9.highScoreOpt(10, 1618) shouldBe 8317
+    Day9.highScoreOpt(13, 7999) shouldBe 146373
+    Day9.highScoreOpt(17, 1104) shouldBe 2764
+    Day9.highScoreOpt(21, 6111) shouldBe 54718
+    Day9.highScoreOpt(30, 5807) shouldBe 37305
+//    Day9.highScore(424, 71144 * 100)
   }
 
   test("add and remove elements to ring") {

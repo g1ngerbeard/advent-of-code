@@ -50,6 +50,26 @@ object Day9 extends App {
     )
   }
 
+  def highScoreOpt(playersN: Int, lastMarble: Int): Int = {
+    val iterations = lastMarble / 23
+
+    def currentPlayer(iter: Int): Int = (iter * 23) % playersN
+
+    def currentMarble(iter: Int): Int = iter * 23
+
+    def marbleToRemove(iter: Int): Int = ???
+
+    (1 to iterations)
+      .foldLeft(Map.empty[Int, Int]) { (res, iter) =>
+
+        println(s"[$iter], $res")
+
+        res.computeWithDefault(currentPlayer(iter), _ + currentMarble(iter) + marbleToRemove(iter), 0)
+      }
+      .values
+      .max
+  }
+
 }
 
 case class GameState(marbleRing: Ring, playerRing: Ring, playerScores: Map[Int, Int], marblePot: Vector[Int])
