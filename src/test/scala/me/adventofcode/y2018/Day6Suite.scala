@@ -1,7 +1,7 @@
 package me.adventofcode.y2018
 
 import me.adventofcode.y2018.Day6Suite.ProblemInput
-import me.adventofcode.y2018.util.Parsers._
+import me.adventofcode.y2018.util.parsers._
 import org.scalatest.{FunSuite, Matchers}
 
 import scala.io.Source

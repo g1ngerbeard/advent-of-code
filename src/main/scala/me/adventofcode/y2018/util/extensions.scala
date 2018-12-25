@@ -26,6 +26,8 @@ object extensions {
 
     def valueOfMaxKey(implicit cmp: Ordering[K]): V = map.maxBy(_.left).right
 
+    def keyOfMaxValue(implicit cmp: Ordering[V]): K = map.maxBy(_.right).left
+
   }
 
 }

@@ -1,6 +1,6 @@
 package me.adventofcode.y2018
 
-import me.adventofcode.y2018.util.Parsers._
+import me.adventofcode.y2018.util.parsers._
 
 import scala.util.matching.Regex
 

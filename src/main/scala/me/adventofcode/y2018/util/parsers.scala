@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter
 
 import scala.util.Try
 
-object Parsers {
+object parsers {
 
   def parseTimeStamp(format: String)(timestamp: String): Either[String, LocalDateTime] =
     Try {
@@ -17,6 +17,9 @@ object Parsers {
       Try(str.toInt)
         .toEither
         .left.map(e => s"Unable to parse $str, reason: ${e.getMessage}")
+
+    def optInt: Option[Int] = Try(str.toInt).toOption
+
   }
 
 }

@@ -2,11 +2,10 @@ package me.adventofcode.y2018
 
 import java.time.{LocalDate, LocalDateTime}
 
-import me.adventofcode.y2018.util.Parsers._
-import me.adventofcode.y2018.util.extensions._
+import me.adventofcode.y2018.util.parsers._
 
 import scala.util.matching.Regex
-
+import me.adventofcode.y2018.util.extensions._
 
 class GuardStatistics(logRecords: List[String]) {
 
@@ -30,8 +29,8 @@ class GuardStatistics(logRecords: List[String]) {
     val mostSleepyMinute = statsByGuard(mostSleepyGuard)
       .flatMap(_.sleepMinutes.toList)
       .groupBy(identity)
-      .maxBy(_._2.size)
-      ._1
+      .mapValues(_.size)
+      .keyOfMaxValue
 
     (mostSleepyGuard, mostSleepyMinute)
   }
@@ -44,9 +43,8 @@ class GuardStatistics(logRecords: List[String]) {
           case (guardId, stats) => stats.flatMap(_.sleepMinutes.map(guardId -> _))
         }
         .groupBy(identity)
-        .maxBy(_._2.size)
-        ._1
-
+        .mapValues(_.size)
+        .keyOfMaxValue
 }
 
 case class GuardStat(guardId: Int, sleepingMinutes: Map[Int, Int])
