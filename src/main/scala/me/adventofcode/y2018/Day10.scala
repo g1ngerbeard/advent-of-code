@@ -31,7 +31,7 @@ object Day10 {
       rowXs = field.getOrElse(y, Set.empty)
     } yield (minX to maxX).map(mark(rowXs)).mkString
 
-    rows.mkString("\n")
+    rows mkString "\n"
   }
 
   private def boundaries(positions: Vector[Coordinate]): (Coordinate, Coordinate) = {

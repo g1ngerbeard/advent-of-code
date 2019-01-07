@@ -1,9 +1,8 @@
 package me.adventofcode.y2018
 
 import me.adventofcode.y2018.Day7Suite.ProblemInput
+import me.adventofcode.y2018.util.files.withResourceUnsafe
 import org.scalatest.{FunSuite, Matchers}
-
-import scala.io.Source
 
 class Day7Suite extends FunSuite with Matchers {
 
@@ -15,10 +14,8 @@ class Day7Suite extends FunSuite with Matchers {
 
 object Day7Suite {
 
-  val ProblemInput: Vector[(String, String)] = Source
-    .fromResource("2018/day7.txt")
-    .getLines()
-    .toVector
-    .flatMap(Instruction.parse)
+  val ProblemInput: Vector[(String, String)] = withResourceUnsafe("2018/day8.txt") {
+      _.toVector.flatMap(Instruction.parse)
+    }
 
 }
