@@ -1,8 +1,8 @@
 package me.adventofcode.y2018
 
 import me.adventofcode.y2018.Point.Coordinate
-import me.adventofcode.y2018.util.parsers._
-import me.adventofcode.y2018.util.extensions._
+import me.adventofcode.util.parsers._
+import me.adventofcode.util.extensions._
 
 import scala.util.matching.Regex
 

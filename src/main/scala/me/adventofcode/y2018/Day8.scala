@@ -1,6 +1,6 @@
 package me.adventofcode.y2018
 
-import me.adventofcode.y2018.util.extensions._
+import me.adventofcode.util.extensions._
 
 object Day8 {
 

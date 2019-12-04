@@ -1,4 +1,4 @@
-package me.adventofcode.y2018.util
+package me.adventofcode.util
 
 object extensions {
 

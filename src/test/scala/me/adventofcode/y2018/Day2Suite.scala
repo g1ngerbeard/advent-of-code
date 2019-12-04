@@ -1,11 +1,12 @@
 package me.adventofcode.y2018
 
 import me.adventofcode.y2018.Day2Suite.ProblemInput
+import org.scalatest.FunSuite
+import org.scalatest.matchers.should
 
 import scala.io.Source
-import org.scalatest.{FunSuite, Inside, Matchers}
 
-class Day2Suite extends FunSuite with Matchers {
+class Day2Suite extends FunSuite with should.Matchers {
 
   test("count pairs and triples") {
 

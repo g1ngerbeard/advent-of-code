@@ -2,13 +2,13 @@ name := "advent-of-code"
 
 version := "0.1"
 
-scalaVersion := "2.12.7"
+scalaVersion := "2.13.1"
 
 scalacOptions ++= Seq(
   "-language:postfixOps"
 )
 
 libraryDependencies ++= Seq(
-  "org.scalactic" %% "scalactic" % "3.0.5",
-  "org.scalatest" %% "scalatest" % "3.0.5" % Test
+  "org.scalactic" %% "scalactic" % "3.1.0",
+  "org.scalatest" %% "scalatest" % "3.1.0" % Test
 )

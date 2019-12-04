@@ -1,6 +1,6 @@
 package me.adventofcode.y2018
 
-import me.adventofcode.y2018.util.files.withResourceUnsafe
+import me.adventofcode.util.files.withResourceUnsafe
 import org.scalatest.{FunSuite, Matchers}
 
 class Day10Suite extends FunSuite with Matchers {
