@@ -20,7 +20,7 @@ class Day1Suite extends AnyFunSuite with should.Matchers {
 
   test("solve part 2") {
     val totalSum = Day1Suite.PuzzleInput.map(fuelRequirementPlus).sum
-    println(totalSum)
+    totalSum shouldBe 5055835
   }
 
 }
