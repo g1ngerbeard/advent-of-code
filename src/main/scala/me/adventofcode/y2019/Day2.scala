@@ -27,20 +27,20 @@ object Day2 {
     loop(0, input)
   }
 
-  def handleOpCode(pos: Int, code: Int, cmdArr: Vector[Int]): ProgramR[Vector[Int]] = code match {
+  private def handleOpCode(pos: Int, code: Int, cmdArr: Vector[Int]): ProgramR[Vector[Int]] = code match {
     case 1 => applyOperation(pos, cmdArr)(_ + _)
     case 2 => applyOperation(pos, cmdArr)(_ * _)
     case code => Left(InvalidCode(code, pos))
   }
 
-  def getCode(pos: Int, cmdArr: Vector[Int]): ProgramR[Int] =
+  private def getCode(pos: Int, cmdArr: Vector[Int]): ProgramR[Int] =
     if (pos < cmdArr.size) {
       Right(cmdArr(pos))
     } else {
       Left(OutOfBounds(pos))
     }
 
-  def applyOperation(pos: Int, cmdArr: Vector[Int])(op: (Int, Int) => Int): ProgramR[Vector[Int]] = {
+  private def applyOperation(pos: Int, cmdArr: Vector[Int])(op: (Int, Int) => Int): ProgramR[Vector[Int]] = {
     for {
       inputAIdx <- getCode(pos + 1, cmdArr)
       inputA <- getCode(inputAIdx, cmdArr)

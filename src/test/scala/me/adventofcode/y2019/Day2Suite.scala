@@ -1,6 +1,7 @@
 package me.adventofcode.y2019
 
 import me.adventofcode.y2019.Day2.runIntcode
+import me.adventofcode.y2019.Day2Suite.prepareInput
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should
 
@@ -19,6 +20,24 @@ class Day2Suite extends AnyFunSuite with should.Matchers {
     }
   }
 
+  test("solve day2 part2") {
+
+    val pairs = for {
+      verb <- 0 to 99
+      noun <- 0 to 99
+    } yield (verb, noun)
+
+    val result = pairs.find {
+      case (noun, verb) =>
+        runIntcode(prepareInput(noun, verb)).map(_ (0)) == Right(19690720)
+    }
+
+    result.map {
+      case (noun, verb) => 100 * noun + verb
+    } shouldBe Some(8226)
+
+  }
+
 }
 
 object Day2Suite {
@@ -33,6 +52,8 @@ object Day2Suite {
     0, 99, 2, 14, 0, 0
   )
 
-  val PartOneInput: Vector[Int] = Input.updated(1, 12).updated(2, 2)
+  def prepareInput(noun: Int, verb: Int): Vector[Int] = Input.updated(1, noun).updated(2, verb)
+
+  val PartOneInput: Vector[Int] = prepareInput(12, 2)
 
 }
