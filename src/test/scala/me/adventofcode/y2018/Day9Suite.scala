@@ -1,8 +1,9 @@
 package me.adventofcode.y2018
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should
 
-class Day9Suite extends FunSuite with Matchers {
+class Day9Suite extends AnyFunSuite with should.Matchers {
 
   test("output highest score in the end of the game") {
     Day9.highScore(13, 7999) shouldBe 146373

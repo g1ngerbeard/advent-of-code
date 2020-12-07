@@ -1,11 +1,12 @@
 package me.adventofcode.y2018
 
 import me.adventofcode.y2018.Day1Suite.TestInput
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
 import scala.io.Source
-import org.scalatest.{FunSuite, Inside, Matchers}
 
-class Day1Suite extends FunSuite with Matchers {
+class Day1Suite extends AnyFunSuite with Matchers {
 
   test("solve day 1 problem") {
     Day1.resultingFrequency(TestInput) shouldEqual 531

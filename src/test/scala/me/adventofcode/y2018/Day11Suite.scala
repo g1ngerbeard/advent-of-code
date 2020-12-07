@@ -1,8 +1,9 @@
 package me.adventofcode.y2018
 
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should
 
-class Day11Suite extends FunSuite with Matchers {
+class Day11Suite extends AnyFunSuite with should.Matchers {
 
   val serial = 3214
 

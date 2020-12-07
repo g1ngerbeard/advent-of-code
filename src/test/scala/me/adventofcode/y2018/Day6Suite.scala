@@ -1,12 +1,13 @@
 package me.adventofcode.y2018
 
-import me.adventofcode.y2018.Day6Suite.ProblemInput
 import me.adventofcode.util.parsers._
-import org.scalatest.{FunSuite, Matchers}
+import me.adventofcode.y2018.Day6Suite.ProblemInput
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should
 
 import scala.io.Source
 
-class Day6Suite extends FunSuite with Matchers {
+class Day6Suite extends AnyFunSuite with should.Matchers {
 
   test("solve problem part 1") {
     Day6.largestFiniteArea(ProblemInput) shouldBe 4186

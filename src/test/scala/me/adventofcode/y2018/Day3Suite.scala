@@ -1,11 +1,12 @@
 package me.adventofcode.y2018
 
 import me.adventofcode.y2018.Day3Suite.{ParsedTestInput, ProblemInput, TestInput}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should
 
 import scala.io.Source
-import org.scalatest.{FunSuite, Matchers}
 
-class Day3Suite extends FunSuite with Matchers {
+class Day3Suite extends AnyFunSuite with should.Matchers {
 
   test("count overlapping square inches of fabric") {
     FabricField.from(ParsedTestInput).conflicts shouldBe 4
