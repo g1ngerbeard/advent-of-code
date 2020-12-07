@@ -6,9 +6,9 @@ object Day1 {
 
   def part1(entries: Vector[Int]): Int = {
     val products = for {
-      i <- (0 until (entries.size - 1)).to(LazyList)
+      i <- LazyList.range(0, entries.size - 2)
       a = entries(i)
-      j <- ((i + 1) until entries.size).to(LazyList)
+      j <- LazyList.range(i + 1, entries.size - 1)
       b = entries(j)
       if a + b == checkValue
     } yield a * b
@@ -18,11 +18,11 @@ object Day1 {
 
   def part2(entries: Vector[Int]): Int = {
     val products = for {
-      i <- (0 until (entries.size - 2)).to(LazyList)
+      i <- LazyList.range(0, entries.size - 2)
       a = entries(i)
-      j <- ((i + 1) until entries.size - 1).to(LazyList)
+      j <- LazyList.range(i + 1, entries.size - 1)
       b = entries(j)
-      k <- ((j + 1) until entries.size).to(LazyList)
+      k <- LazyList.range(j + 1, entries.size)
       c = entries(k)
       if a + b + c == checkValue
     } yield a * b * c
