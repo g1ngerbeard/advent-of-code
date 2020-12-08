@@ -1,5 +1,6 @@
 package me.adventofcode.y2020
 
+// avoid using .combinations(n)
 object Day1 {
 
   val checkValue = 2020

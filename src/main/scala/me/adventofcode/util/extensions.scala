@@ -2,6 +2,14 @@ package me.adventofcode.util
 
 object extensions {
 
+  implicit class AnyExtension[A](any: A) {
+
+    def asRight[E]: Either[E, A] = Right(any)
+
+    def asLeft[T]: Either[A, T] = Left(any)
+
+  }
+
   implicit class Tuple2Extension[L, R](tuple2: (L, R)) {
 
     def map2[TL, TR](lf: L => TL, rf: R => TR): (TL, TR) = (lf(tuple2._1), rf(tuple2._2))
@@ -27,6 +35,12 @@ object extensions {
     def valueOfMaxKey(implicit cmp: Ordering[K]): V = map.maxBy(_.left).right
 
     def keyOfMaxValue(implicit cmp: Ordering[V]): K = map.maxBy(_.right).left
+
+  }
+
+  implicit class EitherExtension[L, R](either: Either[L, R]) {
+
+    def leftMap[I](f: L => I): Either[I, R] = either.left.map(f)
 
   }
 
