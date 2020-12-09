@@ -4,7 +4,6 @@ import me.adventofcode.DayTask
 
 object Day3 extends DayTask[Int, Int](3, 2020, "Toboggan Trajectory") {
 
-  val EmptyCell = '.'
   val TreeCell = '#'
 
   def part1(input: Seq[String]): Int = countTrees(input, 3, 1)
@@ -23,17 +22,20 @@ object Day3 extends DayTask[Int, Int](3, 2020, "Toboggan Trajectory") {
   private def countTrees(input: Seq[String], xstep: Int, ystep: Int): Int = {
     val width = input.head.length
 
-    LazyList
-      .iterate((0, 0)) {
-        case (x, y) => (x + xstep) -> (y + ystep)
+    var i = 0
+    var j = 0
+    var count = 0
+
+    while (j < input.size) {
+      if (input(j)(i % width) == TreeCell) {
+        count += 1
       }
-      .takeWhile(_._2 < input.size)
-      .map {
-        case (x, y) =>
-          val xpos = x % width
-          input(y)(xpos)
-      }
-      .count(_ == TreeCell)
+
+      i += xstep
+      j += ystep
+    }
+
+    count
   }
 
 }
