@@ -26,7 +26,7 @@ case object InvalidPassword extends Problem
 
 case class InvalidPolicy(reason: String) extends Problem
 
-case object InvalidInputLine extends Problem
+case class InvalidInputLine(reason: String) extends Problem
 
 sealed trait PolicyType
 
@@ -91,14 +91,14 @@ object InputLine {
     line match {
       case LineRegex(rawLBound, rawUBound, rawChar, rawPassword) =>
         for {
-          a <- rawLBound.parseInt.leftMap(InvalidPolicy)
-          b <- rawUBound.parseInt.leftMap(InvalidPolicy)
-          char <- rawChar.headOption.toRight(InvalidPolicy("invalid char"))
+          a <- rawLBound.parseInt.leftMap(InvalidInputLine)
+          b <- rawUBound.parseInt.leftMap(InvalidInputLine)
+          char <- rawChar.headOption.toRight(InvalidInputLine("invalid char"))
           policy <- PasswordPolicy.make(a, b, char, policyType)
           password <- Password.parse(policy, rawPassword)
         } yield InputLine(password, policy)
 
-      case _ => InvalidInputLine.asLeft
+      case _ => InvalidInputLine("Unable to parse input line").asLeft
     }
 
 }
