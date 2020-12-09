@@ -55,11 +55,10 @@ case class Password private (value: String)
 
 object Password {
 
-  def parse(policy: PasswordPolicy, value: String): Either[Problem, Password] = {
-    val c = policy.char
+  def parse(policy: PasswordPolicy, value: String): Either[Problem, Password] =
     policy.policyType match {
       case Boundary =>
-        val count = value.count(_ == c)
+        val count = value.count(_ == policy.char)
 
         Either.cond(
           count >= policy.a && count <= policy.b,
@@ -72,12 +71,11 @@ object Password {
         val cb = value.charAt(policy.b - 1)
 
         Either.cond(
-          List(ca, cb).count(_ == c) == 1,
+          List(ca, cb).count(_ == policy.char) == 1,
           Password(value),
           InvalidPassword
         )
     }
-  }
 
 }
 
