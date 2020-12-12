@@ -2,7 +2,7 @@ package me.adventofcode.y2020
 
 import me.adventofcode.DayTask
 import me.adventofcode.util.IntParser
-import me.adventofcode.util.extensions.AnyExtension
+import me.adventofcode.util.extensions.{AnyExtension, BoolExtension}
 import me.adventofcode.util.parsers.StringExt
 
 object Day4 extends DayTask[Int, Int](4, 2020, "Passport Processing") {
@@ -16,7 +16,8 @@ object Day4 extends DayTask[Int, Int](4, 2020, "Passport Processing") {
     passports.count(_.isRight)
   }
 
-  def part2(input: Seq[String]): Int = 1
+  // part 2 does the same as part one
+  def part2(input: Seq[String]): Int = part1(input)
 
   private def parsePassports(text: String): Seq[Either[PassportParsingError, Passport]] =
     text
@@ -32,16 +33,16 @@ case class Passport(
     issueYear: Year,
     expirationYear: Year,
     height: Dimension,
-    hairColor: String,
-    eyeColor: String,
-    passportId: String,
+    hairColor: HairColor,
+    eyeColor: EyeColor,
+    passportId: PassportId,
     countryId: Option[String]
 )
 
 object Passport {
 
   def parse(rawValue: String): Either[PassportParsingError, Passport] = {
-    val syntax = rawValue
+    val tokenMap = rawValue
       .split("[ \n]")
       .map(_.split(':'))
       .collect {
@@ -51,7 +52,7 @@ object Passport {
 
     def getFieldValue[T](name: String)(parser: String => Option[T]): Either[PassportParsingError, T] =
       for {
-        raw <- syntax.get(name).toRight(PassportParsingError(s"Missing required field $name"))
+        raw <- tokenMap.get(name).toRight(PassportParsingError(s"Missing required field $name"))
         parsed <- parser.apply(raw).toRight(PassportParsingError(s"Failed to parse field $name with value $raw"))
       } yield parsed
 
@@ -60,10 +61,10 @@ object Passport {
       issueYear <- getFieldValue("iyr")(Year.parse(2010, 2020))
       expirationYear <- getFieldValue("eyr")(Year.parse(2020, 2030))
       height <- getFieldValue("hgt")(Dimension.parse)
-      hairColor <- getFieldValue("hcl")(Option.apply)
-      eyeColor <- getFieldValue("ecl")(Option.apply)
-      passportId <- getFieldValue("pid")(Option.apply)
-      countryId = syntax.get("cid")
+      hairColor <- getFieldValue("hcl")(HairColor.parse)
+      eyeColor <- getFieldValue("ecl")(EyeColor.parse)
+      passportId <- getFieldValue("pid")(PassportId.parse)
+      countryId = tokenMap.get("cid")
     } yield Passport(birthYear, issueYear, expirationYear, height, hairColor, eyeColor, passportId, countryId)
 
   }
@@ -77,7 +78,7 @@ object Year {
   def parse(lowerBound: Int, upperBound: Int)(value: String): Option[Year] = {
     for {
       parsedYear <- value.optInt
-      if parsedYear > lowerBound && parsedYear < upperBound
+      if parsedYear >= lowerBound && parsedYear <= upperBound
     } yield Year(parsedYear)
   }
 
@@ -108,26 +109,48 @@ object DimensionUnit {
 
 }
 
-sealed abstract class EyeColor(code: String)
+sealed abstract class EyeColor(val code: String)
 
 object EyeColor {
 
-  case object Amber extends EyeColor()
+  case object Amber extends EyeColor("amb")
+  case object Blue extends EyeColor("blu")
+  case object Brown extends EyeColor("brn")
+  case object Grey extends EyeColor("gry")
+  case object Green extends EyeColor("grn")
+  case object Hazel extends EyeColor("hzl")
+  case object Other extends EyeColor("oth")
 
-//  amb blu brn gry grn hzl oth
+  val all = Set(Amber, Blue, Brown, Grey, Green, Hazel, Other)
+
+  val parse: String => Option[EyeColor] = all.map(v => v.code -> v).toMap.get
 
 }
 
-case class ParserError(reason: String)
+case class HairColor private (value: String)
 
-trait Parser[T] {
+object HairColor {
 
-  def parse(raw: String): Either[List[ParserError], T]
+  private val Regex = "#[0-9a-f]{6}".r
+
+  def parse(value: String): Option[HairColor] =
+    Regex
+      .matches(value)
+      .guardOpt
+      .map(_ => HairColor(value))
 
 }
 
-object PassportParser {
+case class PassportId private (value: String)
 
-  type PassPortParser = Parser[Password]
+object PassportId {
+
+  private val Regex = "[0-9]{9}".r
+
+  def parse(value: String): Option[PassportId] =
+    Regex
+      .matches(value)
+      .guardOpt
+      .map(_ => PassportId(value))
 
 }

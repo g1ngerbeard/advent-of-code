@@ -8,6 +8,12 @@ object extensions {
     def ignoreNonFatal[A](f: => A): Option[A] = Try(f).toOption
   }
 
+  implicit class BoolExtension[A](bool: Boolean) {
+
+    def guardOpt: Option[Unit] = if (bool) Some(()) else None
+
+  }
+
   implicit class AnyExtension[A](any: A) {
 
     def some: Option[A] = Some(any)

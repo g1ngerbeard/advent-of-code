@@ -19,38 +19,38 @@ class Day4Suite extends DaySuite(Day4) {
       |hcl:#cfa07d eyr:2025 pid:166559648
       |iyr:2011 ecl:brn hgt:59in""".stripMargin.linesIterator.toSeq
 
+//  this will fail since passport validation rules are changed
 //  testPartOneReduced(2)
-
 //  testPartOne(233)
 
-  test("test valid passports") {
+  test("test invalid passports") {
     val invalidInputs =
       """eyr:1972 cid:100
-      |hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
-      |
-      |iyr:2019
-      |hcl:#602927 eyr:1967 hgt:170cm
-      |ecl:grn pid:012533040 byr:1946
-      |
-      |hcl:dab227 iyr:2012
-      |ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277
-      |
-      |hgt:59cm ecl:zzz
-      |eyr:2038 hcl:74454a iyr:2023
-      |pid:3556412378 byr:2007""".stripMargin
+        |hcl:#18171d ecl:amb hgt:170 pid:186cm iyr:2018 byr:1926
+        |
+        |iyr:2019
+        |hcl:#602927 eyr:1967 hgt:170cm
+        |ecl:grn pid:012533040 byr:1946
+        |
+        |hcl:dab227 iyr:2012
+        |ecl:brn hgt:182cm pid:021572410 eyr:2020 byr:1992 cid:277
+        |
+        |hgt:59cm ecl:zzz
+        |eyr:2038 hcl:74454a iyr:2023
+        |pid:3556412378 byr:2007""".stripMargin
 
     val parsedResult = invalidInputs
       .split("\n\n")
       .map(Passport.parse)
 
+    println(parsedResult.toVector)
 
-    ???
+    parsedResult.forall(_.isLeft) shouldBe true
   }
 
   test("test valid passports") {
     val validInputs =
-      """
-        |pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
+      """pid:087499704 hgt:74in ecl:grn iyr:2012 eyr:2030 byr:1980
         |hcl:#623a2f
         |
         |eyr:2029 ecl:blu cid:129 byr:1989
@@ -65,7 +65,11 @@ class Day4Suite extends DaySuite(Day4) {
       .split("\n\n")
       .map(Passport.parse)
 
-    ???
+    println(parsedResult.toVector)
+
+    parsedResult.forall(_.isRight) shouldBe true
   }
+
+  testPartTwo(111)
 
 }
