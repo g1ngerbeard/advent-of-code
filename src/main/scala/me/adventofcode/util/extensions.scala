@@ -1,8 +1,16 @@
 package me.adventofcode.util
 
+import scala.util.Try
+
 object extensions {
 
+  implicit class OptionObjExt(option: Option.type) {
+    def ignoreNonFatal[A](f: => A): Option[A] = Try(f).toOption
+  }
+
   implicit class AnyExtension[A](any: A) {
+
+    def some: Option[A] = Some(any)
 
     def asRight[E]: Either[E, A] = Right(any)
 
