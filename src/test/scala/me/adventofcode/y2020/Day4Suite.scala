@@ -1,6 +1,7 @@
 package me.adventofcode.y2020
 
 import me.adventofcode.DaySuite
+import me.adventofcode.y2020.decoders._
 
 class Day4Suite extends DaySuite(Day4) {
 
@@ -41,9 +42,7 @@ class Day4Suite extends DaySuite(Day4) {
 
     val parsedResult = invalidInputs
       .split("\n\n")
-      .map(Passport.parse)
-
-    println(parsedResult.toVector)
+      .map(IKVF.parse[Passport])
 
     parsedResult.forall(_.isLeft) shouldBe true
   }
@@ -63,9 +62,7 @@ class Day4Suite extends DaySuite(Day4) {
 
     val parsedResult = validInputs
       .split("\n\n")
-      .map(Passport.parse)
-
-    println(parsedResult.toVector)
+      .map(IKVF.parse[Passport])
 
     parsedResult.forall(_.isRight) shouldBe true
   }
