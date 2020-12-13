@@ -4,44 +4,52 @@ import me.adventofcode.DayTask
 import me.adventofcode.util.IntParser
 import me.adventofcode.util.extensions.{AnyExtension, BoolExtension}
 import me.adventofcode.util.parsers.StringExt
+import me.adventofcode.y2020.PassportProblem.{ConstraintViolated, ParsingFailed}
 
 object Day4 extends DayTask[Int, Int](4, 2020, "Passport Processing") {
 
   def part1(input: Seq[String]): Int = {
     val concatenatedInput = input.mkString("\n")
-    val passports = parsePassports(concatenatedInput)
 
-    println(passports)
+    val parsedPassports = parsePassports(concatenatedInput)
 
-    passports.count(_.isRight)
+    parsedPassports.count(_.isRight)
   }
 
   // part 2 does the same as part one
   def part2(input: Seq[String]): Int = part1(input)
 
-  private def parsePassports(text: String): Seq[Either[PassportParsingError, Passport]] =
+  private def parsePassports(text: String): Seq[Either[PassportProblem, Passport]] =
     text
       .split("\n\n")
       .map(Passport.parse)
 
 }
 
-case class PassportParsingError(reason: String)
+sealed trait PassportProblem
 
-case class Passport(
+object PassportProblem {
+
+  case class ParsingFailed(reason: String) extends PassportProblem
+
+  case class ConstraintViolated(reason: String) extends PassportProblem
+
+}
+
+case class Passport private (
     birthYear: Year,
     issueYear: Year,
     expirationYear: Year,
-    height: Dimension,
+    height: Height,
     hairColor: HairColor,
     eyeColor: EyeColor,
     passportId: PassportId,
-    countryId: Option[String]
+    countryId: Option[CountyId]
 )
 
 object Passport {
 
-  def parse(rawValue: String): Either[PassportParsingError, Passport] = {
+  def parse(rawValue: String): Either[PassportProblem, Passport] = {
     val tokenMap = rawValue
       .split("[ \n]")
       .map(_.split(':'))
@@ -50,50 +58,101 @@ object Passport {
       }
       .toMap
 
-    def getFieldValue[T](name: String)(parser: String => Option[T]): Either[PassportParsingError, T] =
+    def getFieldValue[T](name: String)(parser: String => Option[T]): Either[ParsingFailed, T] =
       for {
-        raw <- tokenMap.get(name).toRight(PassportParsingError(s"Missing required field $name"))
-        parsed <- parser.apply(raw).toRight(PassportParsingError(s"Failed to parse field $name with value $raw"))
+        raw <- tokenMap.get(name).toRight(ParsingFailed(s"Missing required field $name"))
+        parsed <- parser.apply(raw).toRight(ParsingFailed(s"Failed to parse field $name with value $raw"))
       } yield parsed
 
     for {
-      birthYear <- getFieldValue("byr")(Year.parse(1920, 2002))
-      issueYear <- getFieldValue("iyr")(Year.parse(2010, 2020))
-      expirationYear <- getFieldValue("eyr")(Year.parse(2020, 2030))
-      height <- getFieldValue("hgt")(Dimension.parse)
+      birthYear <- getFieldValue("byr")(Year.parse)
+      issueYear <- getFieldValue("iyr")(Year.parse)
+      expirationYear <- getFieldValue("eyr")(Year.parse)
+      height <- getFieldValue("hgt")(Height.parse)
       hairColor <- getFieldValue("hcl")(HairColor.parse)
       eyeColor <- getFieldValue("ecl")(EyeColor.parse)
       passportId <- getFieldValue("pid")(PassportId.parse)
-      countryId = tokenMap.get("cid")
-    } yield Passport(birthYear, issueYear, expirationYear, height, hairColor, eyeColor, passportId, countryId)
+      countryId = tokenMap.get("cid").map(CountyId)
+      validPassport <- Passport.make(
+        birthYear,
+        issueYear,
+        expirationYear,
+        height,
+        hairColor,
+        eyeColor,
+        passportId,
+        countryId
+      )
+    } yield validPassport
+  }
 
+  def make(
+      birthYear: Year,
+      issueYear: Year,
+      expirationYear: Year,
+      height: Height,
+      hairColor: HairColor,
+      eyeColor: EyeColor,
+      passportId: PassportId,
+      countryId: Option[CountyId]
+  ): Either[PassportProblem, Passport] = {
+
+    def checkBounds(
+        startInc: Int,
+        endInc: Int,
+        year: Year,
+        name: String
+    ): Either[ConstraintViolated, Unit] =
+      Either.cond(
+        startInc to endInc contains year.value,
+        (),
+        ConstraintViolated(s"$name $year is out of bounds")
+      )
+
+    for {
+      _ <- checkBounds(1920, 2002, birthYear, "Birth year")
+      _ <- checkBounds(2010, 2020, issueYear, "Issue year")
+      _ <- checkBounds(2020, 2030, expirationYear, "Expiration year")
+    } yield
+      Passport(
+        birthYear,
+        issueYear,
+        expirationYear,
+        height,
+        hairColor,
+        eyeColor,
+        passportId,
+        countryId
+      )
   }
 
 }
+
+case class CountyId(value: String)
 
 case class Year private (value: Int)
 
 object Year {
 
-  def parse(lowerBound: Int, upperBound: Int)(value: String): Option[Year] = {
+  def parse(value: String): Option[Year] =
     for {
-      parsedYear <- value.optInt
-      if parsedYear >= lowerBound && parsedYear <= upperBound
-    } yield Year(parsedYear)
-  }
+      year <- value.optInt
+      // check if year contains 4 digits
+      if year >= 1000 && year <= 9999
+    } yield Year(year)
 
 }
 
-case class Dimension(value: Int, unit: DimensionUnit)
+case class Height(value: Int, unit: DimensionUnit)
 
-object Dimension {
+object Height {
 
-  def parse(rawValue: String): Option[Dimension] =
+  def parse(rawValue: String): Option[Height] =
     rawValue match {
       case s"${IntParser(value)}cm" if value >= 150 && value <= 193 =>
-        Dimension(value, DimensionUnit.Centimeters).some
+        Height(value, DimensionUnit.Centimeters).some
       case s"${IntParser(value)}in" if value >= 59 && value <= 76 =>
-        Dimension(value, DimensionUnit.Inches).some
+        Height(value, DimensionUnit.Inches).some
       case _ => None
     }
 
