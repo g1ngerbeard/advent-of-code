@@ -5,13 +5,13 @@ import cats.implicits._
 import me.adventofcode.DayTask
 import me.adventofcode.util.IntParser
 import me.adventofcode.util.parsers.StringExt
-import me.adventofcode.y2020.IKVF.{Field, IKVFArray, IKVFObject, IKVFValue}
-import me.adventofcode.y2020.IKVFDecoder.{fieldDecoder, fieldValueDecoder, optionalFieldDecoder}
-import me.adventofcode.y2020.PassportProblem.ConstraintViolated
+import me.adventofcode.y2020.IKVF.AST.{Field, IKVFArray, IKVFObject, IKVFValue}
+import me.adventofcode.y2020.IKVF.DecodingResult
 import me.adventofcode.y2020.catsInstances._
-import me.adventofcode.y2020.decoders._
 
 object Day4 extends DayTask[Int, Int](4, 2020, "Passport Processing") {
+
+  import decoders._
 
   def part1(input: Seq[String]): Int = {
     val concatenatedInput = input.mkString("\n")
@@ -24,26 +24,22 @@ object Day4 extends DayTask[Int, Int](4, 2020, "Passport Processing") {
   // part 2 does the same as part one
   def part2(input: Seq[String]): Int = part1(input)
 
-  private def parsePassports(text: String): Seq[Either[IKVFProblem, Passport]] =
+  private def parsePassports(text: String): Seq[DecodingResult[Passport]] =
     text
       .split("\n\n")
-      .toSeq
-      .map(IKVF.parse[Passport])
-
-}
-
-sealed trait PassportProblem
-
-object PassportProblem {
-
-  case class ConstraintViolated(reason: String) extends PassportProblem
-
+      .toVector
+      .map { rawObj =>
+        for {
+          maybePassport <- IKVF.parse[Passport](rawObj)
+          passport <- maybePassport.headOption.toRight(DecodingError("Empty passport"))
+        } yield passport
+      }
 }
 
 case class Passport private (
-    birthYear: Year,
-    issueYear: Year,
-    expirationYear: Year,
+    birthYear: BirthYear,
+    issueYear: IssueYear,
+    expirationYear: ExpirationYear,
     height: Height,
     hairColor: HairColor,
     eyeColor: EyeColor,
@@ -51,50 +47,40 @@ case class Passport private (
     countryId: Option[CountyId]
 )
 
-object Passport {
-
-  def make(
-      birthYear: Year,
-      issueYear: Year,
-      expirationYear: Year,
-      height: Height,
-      hairColor: HairColor,
-      eyeColor: EyeColor,
-      passportId: PassportId,
-      countryId: Option[CountyId]
-  ): Either[ConstraintViolated, Passport] = {
-    def checkBounds(startInc: Int, endInc: Int, year: Year, name: String): Either[ConstraintViolated, Unit] =
-      if (startInc to endInc contains year.value)
-        ().asRight
-      else
-        ConstraintViolated(s"$name $year is out of bounds").asLeft
-
-    for {
-      _ <- checkBounds(1920, 2002, birthYear, "Birth year")
-      _ <- checkBounds(2010, 2020, issueYear, "Issue year")
-      _ <- checkBounds(2020, 2030, expirationYear, "Expiration year")
-    } yield
-      Passport(
-        birthYear,
-        issueYear,
-        expirationYear,
-        height,
-        hairColor,
-        eyeColor,
-        passportId,
-        countryId
-      )
-  }
-
-}
-
 case class CountyId(value: String)
-
-case class Year private (value: Int)
 
 object Year {
 
-  def parse(value: String): Option[Year] = value.optInt.map(Year(_))
+  def parser[T](start: Int, end: Int)(wrapper: Int => T): String => Option[T] =
+    value =>
+      for {
+        year <- value.optInt
+        if year >= start && year <= end
+      } yield wrapper(year)
+
+}
+
+case class BirthYear private (value: Int)
+
+object BirthYear {
+
+  val parse: String => Option[BirthYear] = Year.parser(1920, 2002)(BirthYear.apply)
+
+}
+
+case class IssueYear private (value: Int)
+
+object IssueYear {
+
+  val parse: String => Option[IssueYear] = Year.parser(2010, 2020)(IssueYear.apply)
+
+}
+
+case class ExpirationYear private (value: Int)
+
+object ExpirationYear {
+
+  val parse: String => Option[ExpirationYear] = Year.parser(2020, 2030)(ExpirationYear.apply)
 
 }
 
@@ -171,123 +157,138 @@ object PassportId {
 
 object decoders {
 
-  implicit val passportIdDecoder: IKVFDecoder[PassportId] = fieldValueDecoder(PassportId.parse)
-  implicit val hairColorDecoder: IKVFDecoder[HairColor] = fieldValueDecoder(HairColor.parse)
-  implicit val eyeColorDecoder: IKVFDecoder[EyeColor] = fieldValueDecoder(EyeColor.parse)
-  implicit val heightDecoder: IKVFDecoder[Height] = fieldValueDecoder(Height.parse)
-  implicit val yearDecoder: IKVFDecoder[Year] = fieldValueDecoder(Year.parse)
-  implicit val countryIdDecoder: IKVFDecoder[CountyId] = fieldValueDecoder(CountyId(_).some)
+  import IKVF.Decoder
+  import IKVF.Decoder._
 
-  implicit val passportDecoder: IKVFDecoder[Passport] =
+  implicit val passportIdDecoder: Decoder[PassportId] = fieldValueDecoder(PassportId.parse)
+  implicit val hairColorDecoder: Decoder[HairColor] = fieldValueDecoder(HairColor.parse)
+  implicit val eyeColorDecoder: Decoder[EyeColor] = fieldValueDecoder(EyeColor.parse)
+  implicit val heightDecoder: Decoder[Height] = fieldValueDecoder(Height.parse)
+  implicit val birthYearDecoder: Decoder[BirthYear] = fieldValueDecoder(BirthYear.parse)
+  implicit val issueYearDecoder: Decoder[IssueYear] = fieldValueDecoder(IssueYear.parse)
+  implicit val expirationYearDecoder: Decoder[ExpirationYear] = fieldValueDecoder(ExpirationYear.parse)
+  implicit val countryIdDecoder: Decoder[CountyId] = fieldValueDecoder(CountyId(_).some)
+
+  implicit val passportDecoder: Decoder[Passport] =
     (
-      fieldDecoder[Year]("byr"),
-      fieldDecoder[Year]("iyr"),
-      fieldDecoder[Year]("eyr"),
+      fieldDecoder[BirthYear]("byr"),
+      fieldDecoder[IssueYear]("iyr"),
+      fieldDecoder[ExpirationYear]("eyr"),
       fieldDecoder[Height]("hgt"),
       fieldDecoder[HairColor]("hcl"),
       fieldDecoder[EyeColor]("ecl"),
       fieldDecoder[PassportId]("pid"),
       optionalFieldDecoder[CountyId]("cid")
-    ).mapN(Passport.make).flatMap(result => _ => result.leftMap(e => DecodingError(e.toString)))
+    ).mapN(Passport)
 
 }
 
 // ================================================
 
-sealed trait IKVFProblem
-
-case class DecodingError(reason: String) extends IKVFProblem
+case class DecodingError(reason: String)
 
 // IKVF = imaginary key value format
 object IKVF {
 
-  sealed trait IKVFValue
+  // todo: use ValidatedNel
+  type DecodingResult[T] = Either[DecodingError, T]
 
-  case class Field(name: String, value: String) extends IKVFValue
-
-  case class IKVFObject(fields: Map[String, Field]) extends IKVFValue
-
-  case class IKVFArray(objects: Seq[IKVFObject]) extends IKVFValue
-
-  // todo: return Seq since valid IKVF is an array of values
-  def parse[T: IKVFDecoder](raw: String): Either[IKVFProblem, T] =
+  def parse[T: Decoder](raw: String): DecodingResult[Seq[T]] =
     for {
-      ast <- buildObjectAst(raw)
-      result <- IKVFDecoder[T].decode(ast)
+      ast <- AST.build(raw)
+      result <- Decoder[Seq[T]].decode(ast)
     } yield result
 
-  // todo: use parser combinators?
-  private def buildObjectAst(raw: String): Either[IKVFProblem, IKVFValue] =
-    raw
-      .split("[ \n]")
-      .toVector
-      .traverse {
-        _.split(':').toVector match {
-          case Vector(key, value) => Right(Field(key, value))
-          case invalid            => Left(DecodingError(s"Invalid field format: $invalid"))
-        }
-      }
-      .map { fields =>
-        IKVFObject(fields.map(f => f.name -> f).toMap)
-      }
+  object AST {
 
-}
+    sealed trait IKVFValue
 
-object IKVFDecoder {
+    case class Field(name: String, value: String) extends IKVFValue
 
-  def apply[T: IKVFDecoder]: IKVFDecoder[T] = implicitly[IKVFDecoder[T]]
+    case class IKVFObject(fields: Map[String, Field]) extends IKVFValue
 
-  implicit def sequenceDecoder[T: IKVFDecoder]: IKVFDecoder[Seq[T]] = {
-    case IKVFArray(objects) => objects.traverse(IKVFDecoder[T].decode)
-    case unexpected         => DecodingError(s"Expected IKVFArray got ${unexpected.getClass}").asLeft
+    case class IKVFArray(objects: Seq[IKVFObject]) extends IKVFValue
+
+    // todo: use parser combinators
+    def build(raw: String): DecodingResult[IKVFValue] =
+      raw
+        .split("\n\n")
+        .toVector
+        .traverse(
+          _.split("[ \n]").toVector
+            .traverse {
+              case s"$key:$value" => Right(Field(key, value))
+              case invalid        => Left(DecodingError(s"Invalid field format: $invalid"))
+            }
+            .map { fields =>
+              IKVFObject(fields.map(f => f.name -> f).toMap)
+            }
+        )
+        .map(IKVFArray)
+
   }
 
-  def optionalFieldDecoder[T: IKVFDecoder](name: String): IKVFDecoder[Option[T]] = {
-    case IKVFObject(fields) => fields.get(name).traverse(IKVFDecoder[T].decode)
-    case unexpected         => DecodingError(s"Expected IKVFObject got ${unexpected.getClass}").asLeft
+  object Decoder {
+
+    def apply[T: Decoder]: Decoder[T] = implicitly[Decoder[T]]
+
+    implicit def sequenceDecoder[T: Decoder]: Decoder[Seq[T]] = {
+      case IKVFArray(objects) => objects.traverse(Decoder[T].decode)
+      case unexpected         => DecodingError(s"Expected IKVFArray got ${unexpected.getClass}").asLeft
+    }
+
+    def optionalFieldDecoder[T: Decoder](name: String): Decoder[Option[T]] = {
+      case IKVFObject(fields) => fields.get(name).traverse(Decoder[T].decode)
+      case unexpected         => DecodingError(s"Expected IKVFObject got ${unexpected.getClass}").asLeft
+    }
+
+    def fieldDecoder[T: Decoder](name: String): Decoder[T] = {
+      case IKVFObject(fields) =>
+        for {
+          field <- fields.get(name).toRight(DecodingError(s"Required field $name is missing"))
+          parsedValue <- Decoder[T].decode(field)
+        } yield parsedValue
+      case unexpected => DecodingError(s"Expected IKVFObject got ${unexpected.getClass}").asLeft
+    }
+
+    def fieldValueDecoder[T](p: String => Option[T]): Decoder[T] = {
+      case Field(name, value) => p(value).toRight(DecodingError(s"Invalid value for the field $name: $value"))
+      case unexpected         => DecodingError(s"Expected Field got ${unexpected.getClass}").asLeft
+    }
+
   }
 
-  def fieldDecoder[T: IKVFDecoder](name: String): IKVFDecoder[T] = {
-    case IKVFObject(fields) =>
-      for {
-        field <- fields.get(name).toRight(DecodingError(s"Required field $name is missing"))
-        parsedValue <- IKVFDecoder[T].decode(field)
-      } yield parsedValue
-    case unexpected => DecodingError(s"Expected IKVFObject got ${unexpected.getClass}").asLeft
+  trait Decoder[T] {
+
+    def decode(value: IKVFValue): DecodingResult[T]
+
   }
-
-  def fieldValueDecoder[T](p: String => Option[T]): IKVFDecoder[T] = {
-    case Field(name, value) => p(value).toRight(DecodingError(s"Invalid value for the field $name: $value"))
-    case unexpected         => DecodingError(s"Expected Field got ${unexpected.getClass}").asLeft
-  }
-
-}
-
-trait IKVFDecoder[T] {
-
-  def decode(value: IKVFValue): Either[IKVFProblem, T]
 
 }
 
 object catsInstances {
 
-  implicit val decoderMonad: Monad[IKVFDecoder] = new Monad[IKVFDecoder] {
+  import IKVF.Decoder
 
-    def flatMap[A, B](fa: IKVFDecoder[A])(f: A => IKVFDecoder[B]): IKVFDecoder[B] =
+  implicit val decoderMonad: Monad[Decoder] = new Monad[Decoder] {
+
+    def flatMap[A, B](fa: Decoder[A])(f: A => Decoder[B]): Decoder[B] =
       (obj: IKVFValue) =>
         for {
           a <- fa.decode(obj)
           b <- f(a).decode(obj)
         } yield b
 
-    //fixme: this is not tailrec ;(
-    def tailRecM[A, B](a: A)(f: A => IKVFDecoder[Either[A, B]]): IKVFDecoder[B] = { (obj: IKVFValue) =>
+    // fixme: this is not tailrec ;(
+    def tailRecM[A, B](a: A)(f: A => Decoder[Either[A, B]]): Decoder[B] = { obj =>
       f(a)
         .decode(obj)
-        .flatMap(_.leftFlatMap(tailRecM(_)(f).decode(obj)))
+        .flatMap {
+          _.leftFlatMap(tailRecM(_)(f).decode(obj))
+        }
     }
 
-    def pure[A](x: A): IKVFDecoder[A] = _ => x.asRight
+    def pure[A](x: A): Decoder[A] = _ => x.asRight
 
   }
 
